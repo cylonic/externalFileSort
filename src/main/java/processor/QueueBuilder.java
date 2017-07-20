@@ -24,100 +24,91 @@ public class QueueBuilder implements Runnable
     public void buildQueue()
     {
 
-        FileReader reader = null;
-        FileReader reader2 = null;
+        FileReader leftReader = null;
+        FileReader rightReader = null;
 
         try
         {
-            reader = new FileReader( "src/main/resources/files/File_3.txt" );
-            reader2 = new FileReader( "src/main/resources/files/File_4.txt" );
+            leftReader = new FileReader( "src/main/resources/files/File_3.txt" );
+            rightReader = new FileReader( "src/main/resources/files/File_4.txt" );
 
-            String a = reader.getNextLine();
-            String b = reader2.getNextLine();
+            String left = leftReader.getNextLine();
+            String right = rightReader.getNextLine();
 
             labelParent: while ( true )
             {
 
-                if ( a == null && b == null )
+                if ( left == null && right == null )
                 {
                     break;
                 }
 
-                if ( a == null )
+                if ( left == null )
                 {
-                    queue.put( b );
-                    b = reader2.getNextLine();
+                    queue.put( right );
+                    right = rightReader.getNextLine();
                     continue;
                 }
 
-                if ( b == null )
+                if ( right == null )
                 {
-
-                    queue.put( a );
-                    a = reader.getNextLine();
+                    queue.put( left );
+                    left = leftReader.getNextLine();
                     continue;
                 }
 
-                while ( a.compareTo( b ) > 0 )
+                while ( left.compareTo( right ) > 0 )
                 {
-                    queue.put( b );
-                    String tempB = reader2.getNextLine();
+                    queue.put( right );
+                    String tempRight = rightReader.getNextLine();
 
-                    if ( tempB == null ) // reader 2 file is empty
+                    if ( tempRight == null ) // reader 2 file is empty
                     {
-                        queue.put( a );
-                        while ( ( a = reader.getNextLine() ) != null )
-                        {
-                            queue.put( a );
-                        }
-                        return; // both files should be empty at this
-                                // point
+                        queue.put( left );
+                        runFileOut( leftReader );
+                        return; // both files should be empty at this point
                     }
 
-                    if ( a.compareTo( tempB ) < 0 )
+                    if ( left.compareTo( tempRight ) < 0 )
                     {
-                        queue.put( a );
-                        a = reader.getNextLine();
-                        b = tempB;
+                        queue.put( left );
+                        left = leftReader.getNextLine();
+                        right = tempRight;
                         continue labelParent;
                     }
-                    b = tempB;
+                    right = tempRight;
 
                 }
 
-                while ( b.compareTo( a ) > 0 )
+                while ( right.compareTo( left ) > 0 )
                 {
-                    queue.put( a );
-                    String tempA = reader.getNextLine();
+                    queue.put( left );
+                    String tempLeft = leftReader.getNextLine();
 
-                    if ( tempA == null ) // reader 1 file is empty
+                    if ( tempLeft == null ) // reader 1 file is empty
                     {
-                        queue.put( b );
-                        while ( ( b = reader2.getNextLine() ) != null )
-                        {
-                            queue.put( b );
-                        }
-                        return; // both files should be empty at this
-                                // point
+                        queue.put( right );
+                        runFileOut( rightReader );
+                        return; // both files should be empty at this point
                     }
 
-                    if ( b.compareTo( a ) < 0 )
+                    if ( right.compareTo( left ) < 0 )
                     {
-                        queue.put( b );
-                        b = reader2.getNextLine();
-                        a = tempA;
+                        queue.put( right );
+                        right = rightReader.getNextLine();
+                        left = tempLeft;
                         continue labelParent;
                     }
-                    a = tempA;
+                    left = tempLeft;
 
                 }
 
-                if ( a.compareTo( b ) == 0 )
+                if ( left.compareTo( right ) == 0 )
                 {
-                    queue.put( a );
-                    queue.put( b );
-                    a = reader.getNextLine();
-                    b = reader2.getNextLine();
+                    queue.put( left );
+                    queue.put( right );
+                    left = leftReader.getNextLine();
+                    right = rightReader.getNextLine();
                 }
 
             }
@@ -130,13 +121,22 @@ public class QueueBuilder implements Runnable
             throw new RuntimeException( "Couldnt open file ", e );
         } finally
         {
-            reader.close();
-            reader2.close();
+            leftReader.close();
+            rightReader.close();
             queue.close();
         }
 
         return;
 
+    }
+
+    private void runFileOut( FileReader r ) throws IOException
+    {
+        String line;
+        while ( ( line = r.getNextLine() ) != null )
+        {
+            queue.put( line );
+        }
     }
 
 }
