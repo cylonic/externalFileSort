@@ -25,7 +25,7 @@ public class FileWriter
     public void close()
     {
         System.out.println( count + " records written" );
-        Util.close( writer );
+        Util.closeQuietly( writer );
     }
 
 }

@@ -3,21 +3,18 @@ package util;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class Util
 {
 
     public static BufferedReader getBufferedReader( String fullFilePath )
-            throws UnsupportedEncodingException, FileNotFoundException
     {
         File file = new File( fullFilePath );
 
@@ -26,23 +23,29 @@ public class Util
             throw new RuntimeException( "File does not exist: " + fullFilePath );
         }
 
-        return new BufferedReader( new InputStreamReader( new FileInputStream( fullFilePath ), "UTF-8" ) );
+        try
+        {
+            return Files.newBufferedReader( Paths.get( fullFilePath ), Charset.forName( "UTF-8" ) );
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( "Couldnt open file: " + fullFilePath, e );
+        }
+
     }
 
     public static BufferedWriter getBufferedWriter( String fullFilePath )
     {
-        File file = new File( fullFilePath );
-
         try
         {
-            return new BufferedWriter( new OutputStreamWriter( new FileOutputStream( file ), "UTF-8" ) );
-        } catch ( UnsupportedEncodingException | FileNotFoundException e )
+            return Files.newBufferedWriter( Paths.get( fullFilePath ), Charset.forName( "UTF-8" ),
+                    StandardOpenOption.TRUNCATE_EXISTING );
+        } catch ( IOException e )
         {
             throw new RuntimeException( "Failed to open file: " + fullFilePath );
         }
     }
 
-    public static void close( Object toClose )
+    public static void closeQuietly( Object toClose )
     {
         if ( null != toClose )
         {
@@ -54,7 +57,7 @@ public class Util
                     r.close();
                 } catch ( IOException e )
                 {
-                    e.printStackTrace();
+                    // Quiet
                 }
             } else if ( toClose instanceof Writer )
             {
@@ -64,7 +67,7 @@ public class Util
                     w.close();
                 } catch ( IOException e )
                 {
-                    e.printStackTrace();
+                    // Quiet
                 }
 
             }

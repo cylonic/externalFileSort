@@ -29,8 +29,8 @@ public class QueueBuilder implements Runnable
 
         try
         {
-            leftReader = new FileReader( "src/main/resources/files/File_3.txt" );
-            rightReader = new FileReader( "src/main/resources/files/File_4.txt" );
+            leftReader = new FileReader( "/data/files/largeFile1.txt" );
+            rightReader = new FileReader( "/data/files/wordlist.txt" );
 
             String left = leftReader.getNextLine();
             String right = rightReader.getNextLine();
@@ -46,15 +46,15 @@ public class QueueBuilder implements Runnable
                 if ( left == null )
                 {
                     queue.put( right );
-                    right = rightReader.getNextLine();
-                    continue;
+                    runFileOut( rightReader );
+                    return;
                 }
 
                 if ( right == null )
                 {
                     queue.put( left );
-                    left = leftReader.getNextLine();
-                    continue;
+                    runFileOut( leftReader );
+                    return;
                 }
 
                 while ( left.compareTo( right ) > 0 )
@@ -121,13 +121,18 @@ public class QueueBuilder implements Runnable
             throw new RuntimeException( "Couldnt open file ", e );
         } finally
         {
-            leftReader.close();
-            rightReader.close();
+            if ( leftReader != null )
+            {
+                leftReader.close();
+            }
+            if ( rightReader != null )
+            {
+                rightReader.close();
+            }
             queue.close();
         }
 
         return;
-
     }
 
     private void runFileOut( FileReader r ) throws IOException

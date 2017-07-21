@@ -34,6 +34,7 @@ public class LargeFileSortProcessor
         try
         {
             readerFuture.get();
+            System.out.println( "Reader thread finished." );
         } catch ( InterruptedException | ExecutionException e )
         {
             throw new RuntimeException( "Thread interrupted", e );
@@ -45,6 +46,7 @@ public class LargeFileSortProcessor
         try
         {
             writerFuture.get();
+            System.out.println( "Writer thread finished." );
         } catch ( InterruptedException | ExecutionException e )
         {
             throw new RuntimeException( "Thread interrupted", e );
