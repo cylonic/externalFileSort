@@ -1,1 +1,4 @@
-File_*.txt
+.classpath
+.project
+.settings/
+target/
