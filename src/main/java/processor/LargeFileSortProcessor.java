@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import model.CloseableQueue;
+import model.Item.ItemType;
 
 public class LargeFileSortProcessor
 {
@@ -25,7 +26,7 @@ public class LargeFileSortProcessor
         ExecutorService readerService = Executors.newSingleThreadExecutor();
         ExecutorService writerService = Executors.newSingleThreadExecutor();
 
-        QueueBuilder readerAndWorker = new QueueBuilder( queue );
+        QueueBuilder readerAndWorker = new QueueBuilder( queue, ItemType.INTEGER );
         ThreadedFileWriter writer = new ThreadedFileWriter( queue, "/data/output.txt" );
 
         Future<?> readerFuture = readerService.submit( readerAndWorker );

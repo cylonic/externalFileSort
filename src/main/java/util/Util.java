@@ -11,6 +11,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import factory.DoubleItemFactory;
+import factory.IntegerItemFactory;
+import factory.ItemFactory;
+import factory.StringItemFactory;
+import model.Item.ItemType;
+
 public class Util
 {
 
@@ -38,11 +44,26 @@ public class Util
         try
         {
             return Files.newBufferedWriter( Paths.get( fullFilePath ), Charset.forName( "UTF-8" ),
-                    StandardOpenOption.TRUNCATE_EXISTING );
+                    StandardOpenOption.CREATE_NEW );
         } catch ( IOException e )
         {
             throw new RuntimeException( "Failed to open file: " + fullFilePath );
         }
+    }
+
+    public static ItemFactory getFactory( ItemType type )
+    {
+        if ( type == ItemType.STRING )
+        {
+            return new StringItemFactory();
+        } else if ( type == ItemType.INTEGER )
+        {
+            return new IntegerItemFactory();
+        } else if ( type == ItemType.DOUBLE )
+        {
+            return new DoubleItemFactory();
+        }
+        return null;
     }
 
     public static void closeQuietly( Object toClose )

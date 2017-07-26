@@ -3,16 +3,20 @@ package processor;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import io.FileReader;
+import datasource.Datasource;
 import model.CloseableQueue;
+import model.Item;
+import model.Item.ItemType;
 
 public class QueueBuilder implements Runnable
 {
     private CloseableQueue queue;
+    private final ItemType type;
 
-    public QueueBuilder( final CloseableQueue q )
+    public QueueBuilder( final CloseableQueue q, final ItemType type )
     {
         this.queue = q;
+        this.type = type;
     }
 
     @Override
@@ -24,16 +28,16 @@ public class QueueBuilder implements Runnable
     public void buildQueue()
     {
 
-        FileReader leftReader = null;
-        FileReader rightReader = null;
+        Datasource<?> leftDs = null;
+        Datasource<?> rightDs = null;
 
         try
         {
-            leftReader = new FileReader( "/data/files/largeFile1.txt" );
-            rightReader = new FileReader( "/data/files/wordlist.txt" );
+            leftDs = new Datasource<>( "/data/fluffy.txt", type );
+            rightDs = new Datasource<>( "/data/fluffy2.txt", type );
 
-            String left = leftReader.getNextLine();
-            String right = rightReader.getNextLine();
+            Item<?> left = leftDs.getNextItem();
+            Item<?> right = rightDs.getNextItem();
 
             labelParent: while ( true )
             {
@@ -46,33 +50,33 @@ public class QueueBuilder implements Runnable
                 if ( left == null )
                 {
                     queue.put( right );
-                    runFileOut( rightReader );
+                    runFileOut( rightDs );
                     return;
                 }
 
                 if ( right == null )
                 {
                     queue.put( left );
-                    runFileOut( leftReader );
+                    runFileOut( leftDs );
                     return;
                 }
 
                 while ( left.compareTo( right ) > 0 )
                 {
                     queue.put( right );
-                    String tempRight = rightReader.getNextLine();
+                    Item<?> tempRight = rightDs.getNextItem();
 
                     if ( tempRight == null ) // reader 2 file is empty
                     {
                         queue.put( left );
-                        runFileOut( leftReader );
+                        runFileOut( leftDs );
                         return; // both files should be empty at this point
                     }
 
                     if ( left.compareTo( tempRight ) < 0 )
                     {
                         queue.put( left );
-                        left = leftReader.getNextLine();
+                        left = leftDs.getNextItem();
                         right = tempRight;
                         continue labelParent;
                     }
@@ -83,19 +87,19 @@ public class QueueBuilder implements Runnable
                 while ( right.compareTo( left ) > 0 )
                 {
                     queue.put( left );
-                    String tempLeft = leftReader.getNextLine();
+                    Item<?> tempLeft = leftDs.getNextItem();
 
                     if ( tempLeft == null ) // reader 1 file is empty
                     {
                         queue.put( right );
-                        runFileOut( rightReader );
+                        runFileOut( rightDs );
                         return; // both files should be empty at this point
                     }
 
                     if ( right.compareTo( left ) < 0 )
                     {
                         queue.put( right );
-                        right = rightReader.getNextLine();
+                        right = rightDs.getNextItem();
                         left = tempLeft;
                         continue labelParent;
                     }
@@ -107,8 +111,8 @@ public class QueueBuilder implements Runnable
                 {
                     queue.put( left );
                     queue.put( right );
-                    left = leftReader.getNextLine();
-                    right = rightReader.getNextLine();
+                    left = leftDs.getNextItem();
+                    right = rightDs.getNextItem();
                 }
 
             }
@@ -121,13 +125,13 @@ public class QueueBuilder implements Runnable
             throw new RuntimeException( "Couldnt open file ", e );
         } finally
         {
-            if ( leftReader != null )
+            if ( leftDs != null )
             {
-                leftReader.close();
+                leftDs.close();
             }
-            if ( rightReader != null )
+            if ( rightDs != null )
             {
-                rightReader.close();
+                rightDs.close();
             }
             queue.close();
         }
@@ -135,12 +139,12 @@ public class QueueBuilder implements Runnable
         return;
     }
 
-    private void runFileOut( FileReader r ) throws IOException
+    private void runFileOut( Datasource<?> d ) throws IOException
     {
-        String line;
-        while ( ( line = r.getNextLine() ) != null )
+        Item<?> item;
+        while ( ( item = d.getNextItem() ) != null )
         {
-            queue.put( line );
+            queue.put( item );
         }
     }
 

@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
 public class CloseableQueue
 {
     private volatile boolean closed = false;
-    private BlockingQueue<String> q = new LinkedBlockingQueue<>( 100 );
+    private BlockingQueue<Item<?>> q = new LinkedBlockingQueue<>( 100 );
 
-    public void put( String s )
+    public void put( Item<?> s )
     {
         if ( isClosed() )
         {
@@ -27,12 +27,12 @@ public class CloseableQueue
         }
     }
 
-    public String poll( int time, TimeUnit units ) throws InterruptedException
+    public Item<?> poll( int time, TimeUnit units ) throws InterruptedException
     {
         return q.poll( time, units );
     }
 
-    public String poll() throws InterruptedException
+    public Item<?> poll() throws InterruptedException
     {
         return q.take();
     }

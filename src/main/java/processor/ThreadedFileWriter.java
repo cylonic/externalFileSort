@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.FileWriter;
 import model.CloseableQueue;
+import model.Item;
 
 public class ThreadedFileWriter implements Runnable
 {
@@ -22,16 +23,16 @@ public class ThreadedFileWriter implements Runnable
     {
         try
         {
-            String line;
+            Item<?> item;
             while ( !( q.isClosed() && q.isEmpty() ) )
             {
-                line = q.poll( 2, TimeUnit.SECONDS );
+                item = q.poll( 2, TimeUnit.SECONDS );
 
-                if ( null == line )
+                if ( null == item )
                 {
                     continue;
                 }
-                writer.write( line );
+                writer.write( item.getItem().toString() );
             }
         } catch ( IOException e )
         {

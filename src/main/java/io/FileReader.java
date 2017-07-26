@@ -15,7 +15,7 @@ public class FileReader
         reader = Util.getBufferedReader( pathAndFileName );
     }
 
-    public String getNextLine() throws IOException
+    public String getNextString() throws IOException
     {
         try
         {
