@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import datasource.Datasource;
-import model.CloseableListQueue;
+import model.CloseableQueue;
 import model.Item;
 import model.Item.ItemType;
 
@@ -13,9 +13,9 @@ public class ShardFile implements Runnable
 {
     private String file;
     private ItemType type;
-    private CloseableListQueue q;
+    private CloseableQueue<List<Item<?>>> q;
 
-    public ShardFile( ItemType type, String file, CloseableListQueue q )
+    public ShardFile( ItemType type, String file, CloseableQueue<List<Item<?>>> q )
     {
         this.type = type;
         this.file = file;

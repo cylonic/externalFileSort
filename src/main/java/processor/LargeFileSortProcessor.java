@@ -6,12 +6,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import model.CloseableQueue;
+import model.Item;
 import model.Item.ItemType;
 
 public class LargeFileSortProcessor
 {
 
-    private CloseableQueue queue = new CloseableQueue();
+    private CloseableQueue<Item<?>> queue = new CloseableQueue<>();
 
     public static void main( String[] args )
     {
@@ -26,7 +27,7 @@ public class LargeFileSortProcessor
         ExecutorService readerService = Executors.newSingleThreadExecutor();
         ExecutorService writerService = Executors.newSingleThreadExecutor();
 
-        QueueBuilder readerAndWorker = new QueueBuilder( queue, ItemType.INTEGER );
+        FileMerge readerAndWorker = new FileMerge( queue, ItemType.INTEGER );
         ThreadedFileWriter writer = new ThreadedFileWriter( queue, "/data/output.txt" );
 
         Future<?> readerFuture = readerService.submit( readerAndWorker );

@@ -1,11 +1,13 @@
 package filesplit;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import model.CloseableListQueue;
+import model.CloseableQueue;
+import model.Item;
 import model.Item.ItemType;
 import util.Util;
 
@@ -21,9 +23,11 @@ public class ShardProcessor
     private void start()
     {
         String file = "/data/fluffy.txt";
-        CloseableListQueue q = new CloseableListQueue();
+        CloseableQueue<List<Item<?>>> q = new CloseableQueue<>();
         ShardFile sf = new ShardFile( ItemType.INTEGER, file, q );
-        ShardWriter sw = new ShardWriter( true, Util.stripFileExt( file ) + "_", q );
+        String newBase = prepare( file );
+
+        ShardWriter sw = new ShardWriter( true, newBase, q );
 
         ExecutorService readerThread = Executors.newSingleThreadExecutor();
         ExecutorService writerThread = Executors.newSingleThreadExecutor();
@@ -52,6 +56,16 @@ public class ShardProcessor
 
         System.out.println( "DONE" );
 
+    }
+
+    private String prepare( String file )
+    {
+        String[] parts = Util.splitPathAndFilename( file );
+        String baseName = parts[0] + "/shards";
+        Util.createDir( baseName );
+        String newBase = Util.createNewBaseFile( baseName, parts[1] );
+
+        return newBase;
     }
 
 }

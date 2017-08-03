@@ -4,12 +4,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class CloseableQueue
+public class CloseableQueue<E>
 {
     private volatile boolean closed = false;
-    private BlockingQueue<Item<?>> q = new LinkedBlockingQueue<>( 15 );
+    private BlockingQueue<E> q = new LinkedBlockingQueue<>( 15 );
 
-    public void put( Item<?> s )
+    public void put( E s )
     {
         if ( isClosed() )
         {
@@ -27,12 +27,12 @@ public class CloseableQueue
         }
     }
 
-    public Item<?> poll( int time, TimeUnit units ) throws InterruptedException
+    public E poll( int time, TimeUnit units ) throws InterruptedException
     {
         return q.poll( time, units );
     }
 
-    public Item<?> poll() throws InterruptedException
+    public E poll() throws InterruptedException
     {
         return q.take();
     }

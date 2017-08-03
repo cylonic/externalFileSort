@@ -9,10 +9,10 @@ import model.Item;
 
 public class ThreadedFileWriter implements Runnable
 {
-    private CloseableQueue q;
+    private CloseableQueue<Item<?>> q;
     private FileWriter writer;
 
-    public ThreadedFileWriter( final CloseableQueue queue, final String pathAndFileName )
+    public ThreadedFileWriter( final CloseableQueue<Item<?>> queue, final String pathAndFileName )
     {
         this.q = queue;
         this.writer = new FileWriter( pathAndFileName );

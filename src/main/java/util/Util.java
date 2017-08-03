@@ -8,10 +8,9 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import factory.DoubleItemFactory;
@@ -19,7 +18,6 @@ import factory.IntegerItemFactory;
 import factory.ItemFactory;
 import factory.StringItemFactory;
 import io.FileWriter;
-import model.Item;
 import model.Item.ItemType;
 
 public class Util
@@ -106,9 +104,39 @@ public class Util
         return file.substring( 0, file.lastIndexOf( "." ) );
     }
 
+    public static String[] splitPathAndFilename( String pathAndName )
+    {
+        String path = pathAndName.substring( 0, pathAndName.lastIndexOf( "/" ) );
+        String name = pathAndName.substring( pathAndName.lastIndexOf( "/" ) );
+
+        return new String[]
+        { path, name };
+    }
+
+    public static void createDir( String path )
+    {
+        Path fp = Paths.get( path );
+
+        if ( !Files.exists( fp ) )
+        {
+            try
+            {
+                Files.createDirectory( fp );
+            } catch ( IOException e )
+            {
+
+            }
+        }
+    }
+
+    public static String createNewBaseFile( String oldBase, String oldName )
+    {
+        return new StringBuilder().append( oldBase ).append( Util.stripFileExt( oldName ) ).append( "_" ).toString();
+    }
+
     public static void generateFile()
     {
-        List<Item<?>> list = new ArrayList<>();
+        // List<Item<?>> list = new ArrayList<>();
         FileWriter fw = new FileWriter( "/data/fluffy.txt" );
 
         for (int i = 0; i < 100_000_000; i++)
@@ -147,9 +175,23 @@ public class Util
         fw.close();
     }
 
+    public static long getFileCount( String dir )
+    {
+
+        try
+        {
+            return Files.list( Paths.get( dir ) ).count();
+        } catch ( IOException e )
+        {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static void main( String[] args )
     {
-        generateFile();
+        // generateFile();
+        System.out.println( getFileCount( "/data/shards/" ) );
     }
 
 }

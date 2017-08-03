@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.FileWriter;
-import model.CloseableListQueue;
+import model.CloseableQueue;
 import model.Item;
 import sorting.Sort;
 
@@ -18,10 +18,23 @@ public class ShardWriter implements Runnable
 {
     private String baseFileName;
     private final boolean ascending;
-    private CloseableListQueue q;
+    private CloseableQueue<List<Item<?>>> q;
 
-    public ShardWriter( boolean ascending, String baseFileName, CloseableListQueue q )
+    public ShardWriter( boolean ascending, String baseFileName, CloseableQueue<List<Item<?>>> q )
     {
+        // Path path = Paths.get( "shards" );
+        // if ( !Files.exists( path ) )
+        // {
+        // try
+        // {
+        // Files.createDirectories( path );
+        // } catch ( IOException e )
+        // {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        // }
+        // new File( "./shards" ).mkdir();
         this.baseFileName = baseFileName;
         this.ascending = ascending;
         this.q = q;

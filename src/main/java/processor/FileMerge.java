@@ -8,12 +8,12 @@ import model.CloseableQueue;
 import model.Item;
 import model.Item.ItemType;
 
-public class QueueBuilder implements Runnable
+public class FileMerge implements Runnable
 {
-    private CloseableQueue queue;
+    private CloseableQueue<Item<?>> queue;
     private final ItemType type;
 
-    public QueueBuilder( final CloseableQueue q, final ItemType type )
+    public FileMerge( final CloseableQueue<Item<?>> q, final ItemType type )
     {
         this.queue = q;
         this.type = type;
@@ -22,10 +22,10 @@ public class QueueBuilder implements Runnable
     @Override
     public void run()
     {
-        buildQueue();
+        mergeSortedFiles();
     }
 
-    public void buildQueue()
+    public void mergeSortedFiles()
     {
 
         Datasource<?> leftDs = null;
