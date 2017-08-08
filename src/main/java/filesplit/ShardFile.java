@@ -3,23 +3,30 @@ package filesplit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import datasource.Datasource;
 import model.CloseableQueue;
 import model.Item;
 import model.Item.ItemType;
+import util.Constants;
 
 public class ShardFile implements Runnable
 {
+
     private String file;
     private ItemType type;
     private CloseableQueue<List<Item<?>>> q;
+    private Properties properties;
+    private int shardSize;
 
-    public ShardFile( ItemType type, String file, CloseableQueue<List<Item<?>>> q )
+    public ShardFile( ItemType type, String file, CloseableQueue<List<Item<?>>> q, Properties props )
     {
         this.type = type;
         this.file = file;
         this.q = q;
+        this.properties = props;
+        this.shardSize = Integer.parseInt( properties.getProperty( Constants.SHARD_SIZE ) );
     }
 
     public void splitFile()
@@ -34,9 +41,9 @@ public class ShardFile implements Runnable
             {
                 items.add( item );
 
-                if ( items.size() >= 1_000_000 )
+                if ( items.size() >= shardSize )
                 {
-                    System.out.println( "Read " + ( ++count ) * 1_000_000 + " records" );
+                    System.out.println( "Read " + ( ( ++count ) * shardSize ) + " records" );
                     q.put( items );
                     items = new ArrayList<>();
                 }

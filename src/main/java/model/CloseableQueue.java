@@ -7,7 +7,12 @@ import java.util.concurrent.TimeUnit;
 public class CloseableQueue<E>
 {
     private volatile boolean closed = false;
-    private BlockingQueue<E> q = new LinkedBlockingQueue<>( 15 );
+    private BlockingQueue<E> q;
+
+    public CloseableQueue( int capacity )
+    {
+        q = new LinkedBlockingQueue<>( capacity );
+    }
 
     public void put( E s )
     {

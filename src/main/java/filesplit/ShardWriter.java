@@ -3,6 +3,7 @@ package filesplit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -13,36 +14,27 @@ import io.FileWriter;
 import model.CloseableQueue;
 import model.Item;
 import sorting.Sort;
+import util.Constants;
 
 public class ShardWriter implements Runnable
 {
     private String baseFileName;
     private final boolean ascending;
     private CloseableQueue<List<Item<?>>> q;
+    private Properties properties;
 
-    public ShardWriter( boolean ascending, String baseFileName, CloseableQueue<List<Item<?>>> q )
+    public ShardWriter( boolean ascending, String baseFileName, CloseableQueue<List<Item<?>>> q, Properties props )
     {
-        // Path path = Paths.get( "shards" );
-        // if ( !Files.exists( path ) )
-        // {
-        // try
-        // {
-        // Files.createDirectories( path );
-        // } catch ( IOException e )
-        // {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // }
-        // new File( "./shards" ).mkdir();
         this.baseFileName = baseFileName;
         this.ascending = ascending;
         this.q = q;
+        this.properties = props;
     }
 
     private void work()
     {
-        ExecutorService writers = Executors.newFixedThreadPool( 8 );
+        ExecutorService writers = Executors
+                .newFixedThreadPool( Integer.parseInt( properties.getProperty( Constants.SHARD_THREAD_COUNT ) ) );
         List<Future<?>> futures = new ArrayList<>();
         AtomicInteger count = new AtomicInteger( 1 );
         try
