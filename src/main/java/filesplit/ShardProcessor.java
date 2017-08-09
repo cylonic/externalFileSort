@@ -19,13 +19,7 @@ public class ShardProcessor
 
     public static void main( String[] args )
     {
-        Properties props = new Properties();
-        props.put( Constants.SHARD_INPUT_FILE, "/data/fluffy.txt" );
-        props.put( Constants.SHARD_SIZE, "1000000" );
-        props.put( Constants.SHARD_THREAD_COUNT, "8" );
-        props.put( Constants.QUEUE_SIZE, "15" );
-        props.put( Constants.ITEM_TYPE, "INTEGER" );
-        props.put( Constants.ASCENDING, "true" );
+        Properties props = Util.getDefaultProps();
 
         ShardProcessor pro = new ShardProcessor( props );
         pro.start();
@@ -38,16 +32,16 @@ public class ShardProcessor
 
     private void start()
     {
-        String file = "/data/fluffy.txt";
+        String file = properties.getProperty( Constants.SHARD_INPUT_FILE );
+        ItemType type = ItemType.valueOf( properties.getProperty( Constants.ITEM_TYPE ) );
+        int queueSize = Integer.parseInt( properties.getProperty( Constants.QUEUE_SIZE ) );
+        boolean ascending = Boolean.valueOf( properties.getProperty( Constants.ASCENDING ) );
 
-        CloseableQueue<List<Item<?>>> q = new CloseableQueue<>(
-                Integer.parseInt( properties.getProperty( Constants.QUEUE_SIZE ) ) );
-        ShardFile sf = new ShardFile( ItemType.valueOf( properties.getProperty( Constants.ITEM_TYPE ) ),
-                properties.getProperty( Constants.SHARD_INPUT_FILE ), q, properties );
+        CloseableQueue<List<Item<?>>> q = new CloseableQueue<>( queueSize );
+        ShardFile sf = new ShardFile( type, file, q, properties );
         String newBase = prepare( file );
 
-        ShardWriter sw = new ShardWriter( Boolean.valueOf( properties.getProperty( Constants.ASCENDING ) ), newBase, q,
-                properties );
+        ShardWriter sw = new ShardWriter( ascending, newBase, q, properties );
 
         ExecutorService readerThread = Executors.newSingleThreadExecutor();
         ExecutorService writerThread = Executors.newSingleThreadExecutor();

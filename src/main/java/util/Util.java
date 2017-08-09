@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
 import factory.DoubleItemFactory;
@@ -19,6 +21,7 @@ import factory.ItemFactory;
 import factory.StringItemFactory;
 import io.FileWriter;
 import model.Item.ItemType;
+import processor.Processor;
 
 public class Util
 {
@@ -186,6 +189,36 @@ public class Util
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public static Properties getDefaultProps()
+    {
+        Properties props = new Properties();
+        InputStream is = null;
+
+        try
+        {
+            is = Processor.class.getClassLoader().getResourceAsStream( "props/default.properties" );
+            props.load( is );
+        } catch ( IOException e )
+        {
+            String msg = "Failed to find default.properties file";
+            throw new RuntimeException( msg, e );
+        } finally
+        {
+            if ( is != null )
+            {
+                try
+                {
+                    is.close();
+                } catch ( IOException e )
+                {
+                    // quiet
+                }
+            }
+        }
+
+        return props;
     }
 
     public static void main( String[] args )

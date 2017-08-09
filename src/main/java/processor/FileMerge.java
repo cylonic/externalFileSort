@@ -33,8 +33,8 @@ public class FileMerge implements Runnable
 
         try
         {
-            leftDs = new Datasource<>( "/data/fluffy.txt", type );
-            rightDs = new Datasource<>( "/data/fluffy2.txt", type );
+            leftDs = new Datasource<>( "/data/shards/fluffy_1.txt", type );
+            rightDs = new Datasource<>( "/data/shards/fluffy_2.txt", type );
 
             Item<?> left = leftDs.getNextItem();
             Item<?> right = rightDs.getNextItem();
