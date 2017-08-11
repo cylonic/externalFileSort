@@ -8,11 +8,14 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.LinkedList;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
 
 import factory.DoubleItemFactory;
@@ -221,10 +224,30 @@ public class Util
         return props;
     }
 
+    public static Queue<Path> prefixedFiles( String folder, String prefix )
+    {
+        try
+        {
+            Queue<Path> list = new LinkedList<>();
+            Path f = FileSystems.getDefault().getPath( folder );
+            for (Path path : Files.newDirectoryStream( f, prefix ))
+            {
+                list.add( path );
+            }
+            return list;
+
+        } catch ( IOException e )
+        {
+            return null;
+        }
+    }
+
     public static void main( String[] args )
     {
         // generateFile();
-        System.out.println( getFileCount( "/data/shards/" ) );
+        // System.out.println( getFileCount( "/data/shards/" ) );
+        prefixedFiles( "/data/shards/", "*" ).forEach( System.out::println );
+
     }
 
 }
