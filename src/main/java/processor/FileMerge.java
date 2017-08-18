@@ -2,24 +2,26 @@ package processor;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
-import java.util.Queue;
 
 import datasource.Datasource;
 import model.CloseableQueue;
 import model.Item;
 import model.Item.ItemType;
-import util.Util;
 
 public class FileMerge implements Runnable
 {
     private CloseableQueue<Item<?>> queue;
     private final ItemType type;
+    private final String file1;
+    private final String file2;
 
-    public FileMerge( final CloseableQueue<Item<?>> q, final ItemType type )
+    public FileMerge( final String file1, final String file2, final CloseableQueue<Item<?>> q, final ItemType type )
     {
         this.queue = q;
         this.type = type;
+        this.file1 = file1;
+        this.file2 = file2;
+
     }
 
     @Override
@@ -34,45 +36,33 @@ public class FileMerge implements Runnable
         Datasource<?> leftDs = null;
         Datasource<?> rightDs = null;
 
-        Queue<Path> filesToMerge = Util.prefixedFiles( "/data/shards/", "*" );
-
-        while ( filesToMerge.size() > 1 )
+        try
         {
-            Path p1 = null;
-            Path p2 = null;
-            try
-            {
-                p1 = filesToMerge.poll();
-                p2 = filesToMerge.poll();
 
-                leftDs = new Datasource<>( p1.toString(), type );
-                rightDs = new Datasource<>( p2.toString(), type );
+            leftDs = new Datasource<>( file1, type );
+            rightDs = new Datasource<>( file2, type );
 
-                mergeFiles( leftDs, rightDs );
+            mergeFiles( leftDs, rightDs );
 
-            } catch ( UnsupportedEncodingException e )
+        } catch ( UnsupportedEncodingException e )
+        {
+            throw new RuntimeException( "Improper encoding", e );
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( "Couldnt open file ", e );
+        } finally
+        {
+            if ( leftDs != null )
             {
-                throw new RuntimeException( "Improper encoding", e );
-            } catch ( IOException e )
-            {
-                throw new RuntimeException( "Couldnt open file ", e );
-            } finally
-            {
-                if ( leftDs != null )
-                {
-                    leftDs.close();
-                }
-                if ( rightDs != null )
-                {
-                    rightDs.close();
-                }
-
-                // filesToMerge = Util.prefixedFiles( "/data/shards/", "*" );
-                // queue.close();
+                leftDs.close();
             }
-        }
+            if ( rightDs != null )
+            {
+                rightDs.close();
+            }
 
-        queue.close();
+            queue.close();
+        }
 
         return;
     }

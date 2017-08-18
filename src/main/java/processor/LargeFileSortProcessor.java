@@ -41,7 +41,8 @@ public class LargeFileSortProcessor
         ItemType type = ItemType.valueOf( properties.getProperty( Constants.ITEM_TYPE ) );
         String outputFile = properties.getProperty( Constants.MERGED_OUTPUT_FILE );
 
-        FileMerge readerAndWorker = new FileMerge( queue, type );
+        FileMerge readerAndWorker = new FileMerge( "/data/shards/fluffy_1.txt", "/data/shards/fluffy_1.txt", queue,
+                type );
         ThreadedFileWriter writer = new ThreadedFileWriter( queue, outputFile );
 
         Future<?> readerFuture = readerService.submit( readerAndWorker );
