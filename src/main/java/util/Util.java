@@ -242,6 +242,21 @@ public class Util
         }
     }
 
+    public static void deleteFile( String path )
+    {
+        if ( Files.exists( Paths.get( path ) ) )
+        {
+            try
+            {
+                Files.delete( Paths.get( path ) );
+            } catch ( IOException e )
+            {
+                System.out.println( "Failed to delete file: " + path );
+            }
+        }
+
+    }
+
     public static void main( String[] args )
     {
         // generateFile();

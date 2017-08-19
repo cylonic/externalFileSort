@@ -21,7 +21,6 @@ public class Processor
 
     public Processor()
     {
-        // TODO Auto-generated constructor stub
     }
 
     private static Properties props = Util.getDefaultProps();
@@ -33,42 +32,15 @@ public class Processor
 
         try
         {
-
-            List<Callable<Integer>> tasks = getTasks();
-            if ( tasks.isEmpty() )
+            Queue<Path> files = Util.prefixedFiles( "/data/shards/", "*" );
+            while ( files.size() > 1 )
             {
-                System.out.println( "No files to merge" );
-                return;
+                createAndStartTasks( files );
+
+                files.addAll( Util.prefixedFiles( "/data/shards/", "*" ) );
+
             }
 
-            int futures = 0;
-            for (Callable<Integer> c : tasks)
-            {
-                futures++;
-                completionService.submit( c );
-            }
-
-            Future<Integer> future;
-
-            while ( futures > 0 )
-            {
-                future = completionService.take();
-                futures--;
-
-                try
-                {
-                    future.get();
-                } catch ( ExecutionException ee )
-                {
-                    ee.printStackTrace();
-                    continue;
-                }
-            }
-
-        } catch ( InterruptedException e )
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         } finally
         {
             service.shutdown();
@@ -76,20 +48,68 @@ public class Processor
         }
     }
 
-    private static List<Callable<Integer>> getTasks()
+    private static void createAndStartTasks( Queue<Path> files )
     {
-        Queue<Path> files = Util.prefixedFiles( "/data/shards/", "*" );
+        try
+        {
+
+            List<Callable<Integer>> tasks = getTasks( files );
+            if ( tasks.isEmpty() )
+            {
+                System.out.println( "No files to merge" );
+                return;
+            }
+
+            startAndWaitForTasks( tasks );
+
+        } catch ( InterruptedException e )
+        {
+            String msg = "Critical error, a thread was interrupted";
+            Thread.currentThread().interrupt();
+            throw new RuntimeException( msg, e );
+        }
+    }
+
+    private static List<Callable<Integer>> getTasks( Queue<Path> files )
+    {
         List<Callable<Integer>> c = new ArrayList<>();
 
         while ( files.size() > 1 )
         {
             String p1 = files.poll().toAbsolutePath().toString();
             String p2 = files.poll().toAbsolutePath().toString();
-            String merged = "/data/shards/merged_output" + ( files.size() + Instant.now().toEpochMilli() );
+            String merged = "/data/shards/merged_output" + ( files.size() + "" + Instant.now().toEpochMilli() );
             c.add( new LargeFileSortProcessor( props, p1, p2, merged + ".txt" ) );
         }
 
         return c;
+    }
+
+    private static void startAndWaitForTasks( List<Callable<Integer>> tasks ) throws InterruptedException
+    {
+        int futures = 0;
+        for (Callable<Integer> c : tasks)
+        {
+            futures++;
+            completionService.submit( c );
+        }
+
+        Future<Integer> future;
+
+        while ( futures > 0 )
+        {
+            future = completionService.take();
+            futures--;
+
+            try
+            {
+                future.get();
+            } catch ( ExecutionException ee )
+            {
+                ee.printStackTrace();
+                continue;
+            }
+        }
     }
 
 }

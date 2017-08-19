@@ -1,9 +1,6 @@
 package processor;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -92,15 +89,8 @@ public class LargeFileSortProcessor implements Callable<Integer>
             writerService.shutdown();
         }
 
-        try
-        {
-            Files.delete( Paths.get( shard1 ) );
-            Files.delete( Paths.get( shard2 ) );
-        } catch ( IOException e )
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        Util.deleteFile( shard1 );
+        Util.deleteFile( shard2 );
 
     }
 

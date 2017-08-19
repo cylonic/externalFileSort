@@ -63,15 +63,6 @@ public class FileMerge implements Runnable
 
             queue.close();
 
-            // try
-            // {
-            // Files.delete( Paths.get( file1 ) );
-            // Files.delete( Paths.get( file2 ) );
-            // } catch ( IOException e )
-            // {
-            // // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // }
         }
 
         return;
