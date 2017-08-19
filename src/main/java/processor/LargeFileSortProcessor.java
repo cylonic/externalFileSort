@@ -17,19 +17,26 @@ public class LargeFileSortProcessor
 
     private CloseableQueue<Item<?>> queue = new CloseableQueue<>( 15 );
     private Properties properties;
+    private String shard1;
+    private String shard2;
+    private String mergedPathAndFileName;
 
     public static void main( String[] args )
     {
         Properties props = Util.getDefaultProps();
-        LargeFileSortProcessor pro = new LargeFileSortProcessor( props );
+        LargeFileSortProcessor pro = new LargeFileSortProcessor( props, "/data/shards/fluffy_1.txt",
+                "/data/shards/fluffy_1.txt", "/data/shards/output1.txt" );
         pro.startThreads();
 
         System.out.println( "Done." );
     }
 
-    public LargeFileSortProcessor( Properties props )
+    public LargeFileSortProcessor( Properties props, String shard1, String shard2, String mergedPathAndFileName )
     {
         this.properties = props;
+        this.shard1 = shard1;
+        this.shard2 = shard2;
+        this.mergedPathAndFileName = mergedPathAndFileName;
 
     }
 
@@ -39,11 +46,9 @@ public class LargeFileSortProcessor
         ExecutorService writerService = Executors.newSingleThreadExecutor();
 
         ItemType type = ItemType.valueOf( properties.getProperty( Constants.ITEM_TYPE ) );
-        String outputFile = properties.getProperty( Constants.MERGED_OUTPUT_FILE );
 
-        FileMerge readerAndWorker = new FileMerge( "/data/shards/fluffy_1.txt", "/data/shards/fluffy_1.txt", queue,
-                type );
-        ThreadedFileWriter writer = new ThreadedFileWriter( queue, outputFile );
+        FileMerge readerAndWorker = new FileMerge( shard1, shard2, queue, type );
+        ThreadedFileWriter writer = new ThreadedFileWriter( queue, mergedPathAndFileName );
 
         Future<?> readerFuture = readerService.submit( readerAndWorker );
         Future<?> writerFuture = writerService.submit( writer );
