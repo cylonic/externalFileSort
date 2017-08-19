@@ -1,6 +1,12 @@
 package processor;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,7 +18,7 @@ import model.Item.ItemType;
 import util.Constants;
 import util.Util;
 
-public class LargeFileSortProcessor
+public class LargeFileSortProcessor implements Callable<Integer>
 {
 
     private CloseableQueue<Item<?>> queue = new CloseableQueue<>( 15 );
@@ -24,9 +30,18 @@ public class LargeFileSortProcessor
     public static void main( String[] args )
     {
         Properties props = Util.getDefaultProps();
-        LargeFileSortProcessor pro = new LargeFileSortProcessor( props, "/data/shards/fluffy_1.txt",
-                "/data/shards/fluffy_1.txt", "/data/shards/output1.txt" );
-        pro.startThreads();
+
+        Queue<Path> files = Util.prefixedFiles( "/data/shards/", "fluffy*" );
+
+        int count = 1;
+        while ( files.size() > 1 )
+        {
+            String p1 = files.poll().toAbsolutePath().toString();
+            String p2 = files.poll().toAbsolutePath().toString();
+
+            new LargeFileSortProcessor( props, p1, p2, "/data/shards/merged_output" + count + ".txt" ).startThreads();
+            count++;
+        }
 
         System.out.println( "Done." );
     }
@@ -77,6 +92,24 @@ public class LargeFileSortProcessor
             writerService.shutdown();
         }
 
+        try
+        {
+            Files.delete( Paths.get( shard1 ) );
+            Files.delete( Paths.get( shard2 ) );
+        } catch ( IOException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public Integer call() throws Exception
+    {
+        // TODO Auto-generated method stub
+        startThreads();
+        return 1;
     }
 
 }
