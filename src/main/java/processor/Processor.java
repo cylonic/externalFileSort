@@ -1,6 +1,7 @@
 package processor;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -12,7 +13,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadLocalRandom;
 
 import util.Util;
 
@@ -30,10 +30,6 @@ public class Processor
 
     public static void main( String[] args )
     {
-        // Properties props = Util.getDefaultProps();
-        // ExecutorService service = Executors.newFixedThreadPool( 3 );
-        // CompletionService completionService = new
-        // ExecutorCompletionService<>( service );
 
         try
         {
@@ -89,8 +85,7 @@ public class Processor
         {
             String p1 = files.poll().toAbsolutePath().toString();
             String p2 = files.poll().toAbsolutePath().toString();
-            String merged = "/data/shards/merged_output"
-                    + ( String.valueOf( ThreadLocalRandom.current().nextInt( 1_000_000 ) ) );
+            String merged = "/data/shards/merged_output" + ( files.size() + Instant.now().toEpochMilli() );
             c.add( new LargeFileSortProcessor( props, p1, p2, merged + ".txt" ) );
         }
 
