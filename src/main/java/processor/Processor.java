@@ -37,7 +37,7 @@ public class Processor
             {
                 createAndStartTasks( files );
 
-                files.addAll( Util.prefixedFiles( "/data/shards/", "*" ) );
+                files = Util.prefixedFiles( "/data/shards/", "*" );
 
             }
 
