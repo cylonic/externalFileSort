@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import util.Constants;
 import util.Util;
 
 public class Processor
@@ -27,18 +28,29 @@ public class Processor
     private static ExecutorService service = Executors.newFixedThreadPool( 3 );
     private static CompletionService<Integer> completionService = new ExecutorCompletionService<>( service );
 
+    private static String SHARD_DIR;
+    private static String MERGING_WILDCARD;
+
     public static void main( String[] args )
     {
+        gatherArgs( args );
+        initVars();
 
         try
         {
-            Queue<Path> files = Util.prefixedFiles( "/data/shards/", "*" );
+            Queue<Path> files = Util.prefixedFiles( SHARD_DIR, MERGING_WILDCARD );
+
+            if ( files == null || files.isEmpty() )
+            {
+                System.out.println( "No files to merge found" );
+                return;
+            }
+
             while ( files.size() > 1 )
             {
                 createAndStartTasks( files );
 
-                files = Util.prefixedFiles( "/data/shards/", "*" );
-
+                files = Util.prefixedFiles( SHARD_DIR, MERGING_WILDCARD );
             }
 
         } finally
@@ -48,11 +60,25 @@ public class Processor
         }
     }
 
+    private static void initVars()
+    {
+        SHARD_DIR = props.getProperty( Constants.SHARD_OUTPUT_DIR );
+        MERGING_WILDCARD = props.getProperty( Constants.MERGING_WILDCARD );
+    }
+
+    private static void gatherArgs( String[] args )
+    {
+        for (String arg : args)
+        {
+            String[] parts = arg.split( "=" );
+            props.put( parts[0], parts[1] );
+        }
+    }
+
     private static void createAndStartTasks( Queue<Path> files )
     {
         try
         {
-
             List<Callable<Integer>> tasks = getTasks( files );
             if ( tasks.isEmpty() )
             {
@@ -78,7 +104,7 @@ public class Processor
         {
             String p1 = files.poll().toAbsolutePath().toString();
             String p2 = files.poll().toAbsolutePath().toString();
-            String merged = "/data/shards/merged_output" + ( files.size() + "" + Instant.now().toEpochMilli() );
+            String merged = SHARD_DIR + ( files.size() + "" + Instant.now().toEpochMilli() );
             c.add( new LargeFileSortProcessor( props, p1, p2, merged + ".txt" ) );
         }
 
@@ -87,27 +113,32 @@ public class Processor
 
     private static void startAndWaitForTasks( List<Callable<Integer>> tasks ) throws InterruptedException
     {
-        int futures = 0;
+        List<Future<Integer>> futures = new ArrayList<>();
         for (Callable<Integer> c : tasks)
         {
-            futures++;
-            completionService.submit( c );
+            futures.add( completionService.submit( c ) );
         }
 
-        Future<Integer> future;
+        Future<Integer> completed;
 
-        while ( futures > 0 )
+        while ( futures.size() > 0 )
         {
-            future = completionService.take();
-            futures--;
+            completed = completionService.take();
+            futures.remove( completed );
 
             try
             {
-                future.get();
+                completed.get();
             } catch ( ExecutionException ee )
             {
-                ee.printStackTrace();
-                continue;
+
+                for (Future<Integer> f : futures)
+                {
+                    f.cancel( true );
+                }
+
+                String msg = "Error during a threads execution. All threads stopped";
+                throw new RuntimeException( msg, ee );
             }
         }
     }

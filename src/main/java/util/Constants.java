@@ -11,7 +11,8 @@ public class Constants
 
     public static final String QUEUE_SIZE = "QUEUE_SIZE";
 
-    public static final String MERGED_OUTPUT_FILE = "MERGED_OUTPUT_FILE";
+    public static final String MERGE_FILE_BASE = "MERGE_FILE_BASE";
+    public static final String MERGING_WILDCARD = "MERGING_WILDCARD";
 
     public static final String ITEM_TYPE = "ITEM_TYPE";
 
