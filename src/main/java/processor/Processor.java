@@ -14,15 +14,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import filesplit.ShardProcessor;
 import util.Constants;
 import util.Util;
 
 public class Processor
 {
-
-    public Processor()
-    {
-    }
 
     private static Properties props = Util.getDefaultProps();
     private static ExecutorService service = Executors.newFixedThreadPool( 3 );
@@ -36,6 +33,18 @@ public class Processor
         gatherArgs( args );
         initVars();
 
+        runShardProcessor();
+        runMerge();
+    }
+
+    private static void runShardProcessor()
+    {
+        ShardProcessor sp = new ShardProcessor( props );
+        sp.start();
+    }
+
+    private static void runMerge()
+    {
         try
         {
             Queue<Path> files = Util.prefixedFiles( SHARD_DIR, MERGING_WILDCARD );

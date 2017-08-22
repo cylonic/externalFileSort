@@ -30,7 +30,7 @@ public class ShardProcessor
         this.properties = props;
     }
 
-    private void start()
+    public void start()
     {
         String file = properties.getProperty( Constants.SHARD_INPUT_FILE );
         ItemType type = ItemType.valueOf( properties.getProperty( Constants.ITEM_TYPE ) );
