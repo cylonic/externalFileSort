@@ -1,14 +1,14 @@
 package processor;
 
-import java.nio.file.Path;
 import java.util.Properties;
-import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import io.ThreadedFileWriter;
+import merge.FileMerge;
 import model.CloseableQueue;
 import model.Item;
 import model.Item.ItemType;
@@ -23,25 +23,6 @@ public class LargeFileSortProcessor implements Callable<Integer>
     private String shard1;
     private String shard2;
     private String mergedPathAndFileName;
-
-    public static void main( String[] args )
-    {
-        Properties props = Util.getDefaultProps();
-
-        Queue<Path> files = Util.prefixedFiles( "/data/shards/", "fluffy*" );
-
-        int count = 1;
-        while ( files.size() > 1 )
-        {
-            String p1 = files.poll().toAbsolutePath().toString();
-            String p2 = files.poll().toAbsolutePath().toString();
-
-            new LargeFileSortProcessor( props, p1, p2, "/data/shards/merged_output" + count + ".txt" ).startThreads();
-            count++;
-        }
-
-        System.out.println( "Done." );
-    }
 
     public LargeFileSortProcessor( Properties props, String shard1, String shard2, String mergedPathAndFileName )
     {
@@ -68,7 +49,6 @@ public class LargeFileSortProcessor implements Callable<Integer>
         try
         {
             readerFuture.get();
-            System.out.println( "Reader thread finished." );
         } catch ( InterruptedException | ExecutionException e )
         {
             throw new RuntimeException( "Thread interrupted", e );
@@ -80,7 +60,6 @@ public class LargeFileSortProcessor implements Callable<Integer>
         try
         {
             writerFuture.get();
-            System.out.println( "Writer thread finished." );
         } catch ( InterruptedException | ExecutionException e )
         {
             throw new RuntimeException( "Thread interrupted", e );
@@ -97,7 +76,6 @@ public class LargeFileSortProcessor implements Callable<Integer>
     @Override
     public Integer call() throws Exception
     {
-        // TODO Auto-generated method stub
         startThreads();
         return 1;
     }

@@ -36,7 +36,6 @@ public class FileReader
 
     public void close()
     {
-        System.out.println( count + " records read" );
         Util.closeQuietly( reader );
     }
 

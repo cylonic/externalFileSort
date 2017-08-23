@@ -13,6 +13,7 @@ public class Constants
 
     public static final String MERGE_FILE_BASE = "MERGE_FILE_BASE";
     public static final String MERGING_WILDCARD = "MERGING_WILDCARD";
+    public static final String MERGING_THREADS = "MERGING_THREADS";
 
     public static final String ITEM_TYPE = "ITEM_TYPE";
 

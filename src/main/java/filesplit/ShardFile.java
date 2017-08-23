@@ -43,7 +43,6 @@ public class ShardFile implements Runnable
 
                 if ( items.size() >= shardSize )
                 {
-                    System.out.println( "Read " + ( ( ++count ) * shardSize ) + " records" );
                     q.put( items );
                     items = new ArrayList<>();
                 }
@@ -64,7 +63,6 @@ public class ShardFile implements Runnable
     public void run()
     {
         splitFile();
-        System.out.println( "splitFile done" );
 
     }
 

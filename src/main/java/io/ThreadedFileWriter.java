@@ -1,9 +1,8 @@
-package processor;
+package io;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import io.FileWriter;
 import model.CloseableQueue;
 import model.Item;
 

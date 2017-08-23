@@ -1,4 +1,4 @@
-package processor;
+package merge;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

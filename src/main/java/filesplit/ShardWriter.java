@@ -95,7 +95,6 @@ public class ShardWriter implements Runnable
     public void run()
     {
         work();
-        System.out.println( "shardWriter done" );
     }
 
 }

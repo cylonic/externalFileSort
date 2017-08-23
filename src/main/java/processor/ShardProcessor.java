@@ -1,4 +1,4 @@
-package filesplit;
+package processor;
 
 import java.util.List;
 import java.util.Properties;
@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import filesplit.ShardFile;
+import filesplit.ShardWriter;
 import model.CloseableQueue;
 import model.Item;
 import model.Item.ItemType;
@@ -33,13 +35,14 @@ public class ShardProcessor
     public void start()
     {
         String file = properties.getProperty( Constants.SHARD_INPUT_FILE );
+        String outputDir = properties.getProperty( Constants.SHARD_OUTPUT_DIR );
         ItemType type = ItemType.valueOf( properties.getProperty( Constants.ITEM_TYPE ) );
         int queueSize = Integer.parseInt( properties.getProperty( Constants.QUEUE_SIZE ) );
         boolean ascending = Boolean.valueOf( properties.getProperty( Constants.ASCENDING ) );
 
         CloseableQueue<List<Item<?>>> q = new CloseableQueue<>( queueSize );
         ShardFile sf = new ShardFile( type, file, q, properties );
-        String newBase = prepare( file );
+        String newBase = prepare( file, outputDir );
 
         ShardWriter sw = new ShardWriter( ascending, newBase, q, properties );
 
@@ -68,16 +71,13 @@ public class ShardProcessor
         readerThread.shutdown();
         writerThread.shutdown();
 
-        System.out.println( "DONE" );
-
     }
 
-    private String prepare( String file )
+    private String prepare( String file, String outputDir )
     {
         String[] parts = Util.splitPathAndFilename( file );
-        String baseName = parts[0] + "/shards";
-        Util.createDir( baseName );
-        String newBase = Util.createNewBaseFile( baseName, parts[1] );
+        Util.createDir( outputDir );
+        String newBase = Util.createNewBaseFile( outputDir, parts[1] );
 
         return newBase;
     }
