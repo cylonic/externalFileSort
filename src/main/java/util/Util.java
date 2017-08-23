@@ -142,13 +142,10 @@ public class Util
 
     public static void generateFile()
     {
-        // List<Item<?>> list = new ArrayList<>();
         FileWriter fw = new FileWriter( "/data/fluffy.txt" );
 
         for (int i = 0; i < 100_000_000; i++)
         {
-            // list.add( new Item<>( ThreadLocalRandom.current().nextInt(
-            // 1_000_000 ), ItemType.INTEGER ) );
 
             if ( i % 1_000_000 == 0 )
             {
@@ -160,23 +157,9 @@ public class Util
                 fw.write( String.valueOf( ThreadLocalRandom.current().nextInt( 1_000_000 ) ) );
             } catch ( IOException e )
             {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
-
-        // list = Sort.sortList( list, true );
-
-        // for (Item<?> line : list)
-        // {
-        // try
-        // {
-        // fw.write( line.getItem().toString() );
-        // } catch ( IOException e )
-        // {
-        // e.printStackTrace();
-        // }
-        // }
 
         fw.close();
     }
@@ -254,14 +237,6 @@ public class Util
                 System.out.println( "Failed to delete file: " + path );
             }
         }
-
-    }
-
-    public static void main( String[] args )
-    {
-        // generateFile();
-        // System.out.println( getFileCount( "/data/shards/" ) );
-        prefixedFiles( "/data/shards/", "*" ).forEach( System.out::println );
 
     }
 

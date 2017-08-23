@@ -19,14 +19,6 @@ public class ShardProcessor
 {
     private Properties properties;
 
-    public static void main( String[] args )
-    {
-        Properties props = Util.getDefaultProps();
-
-        ShardProcessor pro = new ShardProcessor( props );
-        pro.start();
-    }
-
     public ShardProcessor( Properties props )
     {
         this.properties = props;

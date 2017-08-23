@@ -17,6 +17,12 @@ public class Datasource<E>
     {
         this.reader = new FileReader( fullPathAndFile );
         this.factory = Util.getFactory( type );
+
+        if ( factory == null )
+        {
+            String msg = "Unknown ItemType";
+            throw new RuntimeException( msg );
+        }
     }
 
     public Item<?> getNextItem() throws IOException
