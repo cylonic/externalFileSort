@@ -15,9 +15,9 @@ public abstract class Merge
         this.queue = queue;
     }
 
-    abstract void merge( Datasource<?> d1, Datasource<?> d2 ) throws IOException;
+    abstract void merge( Datasource d1, Datasource d2 ) throws IOException;
 
-    protected void runFileOut( Datasource<?> d ) throws IOException
+    protected void runFileOut( Datasource d ) throws IOException
     {
         Item<?> item;
         while ( ( item = d.getNextItem() ) != null )

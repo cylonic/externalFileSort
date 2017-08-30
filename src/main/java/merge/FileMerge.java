@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import datasource.Datasource;
+import datasource.InputDatasource;
 import model.CloseableQueue;
 import model.Item;
 import model.Item.ItemType;
@@ -33,14 +34,14 @@ public class FileMerge implements Runnable
     public void mergeSortedFiles()
     {
 
-        Datasource<?> leftDs = null;
-        Datasource<?> rightDs = null;
+        Datasource leftDs = null;
+        Datasource rightDs = null;
 
         try
         {
 
-            leftDs = new Datasource<>( file1, type );
-            rightDs = new Datasource<>( file2, type );
+            leftDs = new InputDatasource<>( file1, type );
+            rightDs = new InputDatasource<>( file2, type );
 
             mergeFiles( leftDs, rightDs );
 
@@ -68,7 +69,7 @@ public class FileMerge implements Runnable
         return;
     }
 
-    private void mergeFiles( Datasource<?> d1, Datasource<?> d2 ) throws IOException
+    private void mergeFiles( Datasource d1, Datasource d2 ) throws IOException
     {
         Item<?> left = d1.getNextItem();
         Item<?> right = d2.getNextItem();
@@ -153,10 +154,10 @@ public class FileMerge implements Runnable
 
     }
 
-    private void runFileOut( Datasource<?> d ) throws IOException
+    private void runFileOut( Datasource d2 ) throws IOException
     {
         Item<?> item;
-        while ( ( item = d.getNextItem() ) != null )
+        while ( ( item = d2.getNextItem() ) != null )
         {
             queue.put( item );
         }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 import datasource.Datasource;
+import datasource.InputDatasource;
 import model.CloseableQueue;
 import model.Item;
 import model.Item.ItemType;
@@ -31,7 +32,7 @@ public class ShardFile implements Runnable
 
     public void splitFile()
     {
-        Datasource<?> ds = new Datasource<>( file, type );
+        Datasource ds = new InputDatasource<>( file, type );
         try
         {
             int count = 1;

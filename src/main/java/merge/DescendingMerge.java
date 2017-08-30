@@ -15,7 +15,7 @@ public class DescendingMerge extends Merge
     }
 
     @Override
-    public void merge( Datasource<?> d1, Datasource<?> d2 ) throws IOException
+    public void merge( Datasource d1, Datasource d2 ) throws IOException
     {
         Item<?> left = d1.getNextItem();
         Item<?> right = d2.getNextItem();
