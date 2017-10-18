@@ -19,6 +19,10 @@ public class Processor
 
     private static void gatherArgs( String[] args )
     {
+        if ( args.length != 0 )
+        {
+            System.out.println( "Overriding properties from file with command line args!" );
+        }
         for (String arg : args)
         {
             String[] parts = arg.split( "=" );

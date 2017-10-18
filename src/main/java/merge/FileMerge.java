@@ -15,13 +15,16 @@ public class FileMerge implements Runnable
     private final ItemType type;
     private final String file1;
     private final String file2;
+    private final Merge merge;
 
-    public FileMerge( final String file1, final String file2, final CloseableQueue<Item<?>> q, final ItemType type )
+    public FileMerge( final String file1, final String file2, final CloseableQueue<Item<?>> q, final ItemType type,
+            final boolean ascending )
     {
         this.queue = q;
         this.type = type;
         this.file1 = file1;
         this.file2 = file2;
+        this.merge = getMerge( ascending, q );
 
     }
 
@@ -43,7 +46,7 @@ public class FileMerge implements Runnable
             leftDs = new InputDatasource<>( file1, type );
             rightDs = new InputDatasource<>( file2, type );
 
-            mergeFiles( leftDs, rightDs );
+            merge.merge( leftDs, rightDs );
 
         } catch ( UnsupportedEncodingException e )
         {
@@ -69,98 +72,15 @@ public class FileMerge implements Runnable
         return;
     }
 
-    private void mergeFiles( Datasource d1, Datasource d2 ) throws IOException
+    private static Merge getMerge( boolean ascending, CloseableQueue<Item<?>> q )
     {
-        Item<?> left = d1.getNextItem();
-        Item<?> right = d2.getNextItem();
-
-        labelParent: while ( true )
+        if ( ascending )
         {
-
-            if ( left == null && right == null )
-            {
-                break;
-            }
-
-            if ( left == null )
-            {
-                queue.put( right );
-                runFileOut( d2 );
-                return;
-            }
-
-            if ( right == null )
-            {
-                queue.put( left );
-                runFileOut( d1 );
-                return;
-            }
-
-            while ( left.compareTo( right ) > 0 )
-            {
-                queue.put( right );
-                Item<?> tempRight = d2.getNextItem();
-
-                if ( tempRight == null ) // reader 2 file is empty
-                {
-                    queue.put( left );
-                    runFileOut( d1 );
-                    return; // both files should be empty at this point
-                }
-
-                if ( left.compareTo( tempRight ) < 0 )
-                {
-                    queue.put( left );
-                    left = d1.getNextItem();
-                    right = tempRight;
-                    continue labelParent;
-                }
-                right = tempRight;
-
-            }
-
-            while ( right.compareTo( left ) > 0 )
-            {
-                queue.put( left );
-                Item<?> tempLeft = d1.getNextItem();
-
-                if ( tempLeft == null ) // reader 1 file is empty
-                {
-                    queue.put( right );
-                    runFileOut( d2 );
-                    return; // both files should be empty at this point
-                }
-
-                if ( right.compareTo( left ) < 0 )
-                {
-                    queue.put( right );
-                    right = d2.getNextItem();
-                    left = tempLeft;
-                    continue labelParent;
-                }
-                left = tempLeft;
-
-            }
-
-            if ( left.compareTo( right ) == 0 )
-            {
-                queue.put( left );
-                queue.put( right );
-                left = d1.getNextItem();
-                right = d2.getNextItem();
-            }
-
+            return new AscendingMerge( q );
         }
 
-    }
+        return new DescendingMerge( q );
 
-    private void runFileOut( Datasource d2 ) throws IOException
-    {
-        Item<?> item;
-        while ( ( item = d2.getNextItem() ) != null )
-        {
-            queue.put( item );
-        }
     }
 
 }

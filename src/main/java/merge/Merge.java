@@ -8,7 +8,7 @@ import model.Item;
 
 public abstract class Merge
 {
-    protected CloseableQueue<Item<?>> queue;
+    CloseableQueue<Item<?>> queue;
 
     public Merge( CloseableQueue<Item<?>> queue )
     {
@@ -17,7 +17,7 @@ public abstract class Merge
 
     abstract void merge( Datasource d1, Datasource d2 ) throws IOException;
 
-    protected void runFileOut( Datasource d ) throws IOException
+    void runFileOut( Datasource d ) throws IOException
     {
         Item<?> item;
         while ( ( item = d.getNextItem() ) != null )

@@ -40,7 +40,8 @@ public class LargeFileSortProcessor implements Callable<Integer>
 
         ItemType type = ItemType.valueOf( properties.getProperty( Constants.ITEM_TYPE ) );
 
-        FileMerge readerAndWorker = new FileMerge( shard1, shard2, queue, type );
+        FileMerge readerAndWorker = new FileMerge( shard1, shard2, queue, type,
+                Boolean.valueOf( properties.getProperty( Constants.ASCENDING ) ) );
         ThreadedFileWriter writer = new ThreadedFileWriter( queue, mergedPathAndFileName );
 
         Future<?> readerFuture = readerService.submit( readerAndWorker );
