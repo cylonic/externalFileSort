@@ -11,10 +11,18 @@ public class Processor
 
     public static void main( String[] args )
     {
-        gatherArgs( args );
+        try
+        {
+            gatherArgs( args );
 
-        runShardProcessor();
-        runMerge();
+            runShardProcessor();
+            runMerge();
+        } catch ( Throwable t )
+        {
+            String msg = "Caught an unforseen error during processing";
+            throw new RuntimeException( msg, t );
+
+        }
     }
 
     private static void gatherArgs( String[] args )
