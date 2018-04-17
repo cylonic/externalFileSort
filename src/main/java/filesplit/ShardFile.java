@@ -33,7 +33,6 @@ public class ShardFile implements Runnable
     public void splitFile()
     {
         Datasource ds = new InputDatasource<>( file, type );
-        System.out.println( "Testing, 123" );
         try
         {
             int count = 1;
